@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.agh.iot.mobile.WifiSelection">
+
+    <EditText
+        android:id="@+id/et_wifi_password"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:ems="10"
+        android:hint="Password"
+        android:inputType="textPassword"
+        android:minHeight="48dp" />
+    <ListView
+        android:id = "@+id/wifiList"
+        android:layout_width = "match_parent"
+        android:layout_height = "match_parent"
+        android:layout_marginTop="50dp"
+        android:layout_below = "@+id/et_wifi_password"
+        android:layout_above="@id/btn_wifi_login"/>
+    <Button
+        android:id="@+id/btn_wifi_login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@id/scanBtn"
+        android:ems="10"
+        android:text="Connect"/>
+    <Button
+        android:id = "@+id/scanBtn"
+        android:layout_width = "match_parent"
+        android:layout_height = "50dp"
+        android:layout_alignParentBottom = "true"
+        android:layout_gravity = "bottom"
+        android:layout_margin = "15dp"
+        android:text = "Scan WiFi" />
+
+</RelativeLayout>
