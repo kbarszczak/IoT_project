@@ -1,4 +1,6 @@
-package com.agh.iot.mobile;
+package com.agh.iot.mobile.encoding;
+
+import androidx.annotation.Nullable;
 
 import java.security.SecureRandom;
 
@@ -14,11 +16,11 @@ public class SymmetricKey {
     private Cipher cipher;
     private IvParameterSpec ivParameterSpec;
 
-    public SymmetricKey(){
+    public SymmetricKey() {
         try {
             SecureRandom secureRandom = new SecureRandom();
             keyGenerator = KeyGenerator.getInstance(ALGORITHM);
-            keyGenerator.init(256,secureRandom);
+            keyGenerator.init(256, secureRandom);
             cipher = Cipher.getInstance(AES_CIPHER_ALGORITHM);
             ivParameterSpec = new IvParameterSpec(createInitializationVector());
         } catch (Exception e) {
@@ -26,7 +28,7 @@ public class SymmetricKey {
         }
     }
 
-    public SecretKey generateNewKey(){
+    public SecretKey generateNewKey() {
         return keyGenerator.generateKey();
     }
 
@@ -38,10 +40,11 @@ public class SymmetricKey {
         return initializationVector;
     }
 
-    public byte[] encrypt(SecretKey key, String message){
+    @Nullable
+    public byte[] encrypt(SecretKey key, String message) {
         byte[] encryptedMessage = null;
         try {
-            cipher.init(Cipher.ENCRYPT_MODE,key,ivParameterSpec);
+            cipher.init(Cipher.ENCRYPT_MODE, key, ivParameterSpec);
             encryptedMessage = cipher.doFinal(message.getBytes());
         } catch (Exception e) {
             e.printStackTrace();
@@ -49,24 +52,16 @@ public class SymmetricKey {
         return encryptedMessage;
     }
 
-    public String decrypt(SecretKey key, byte[] message){
+    @Nullable
+    public String decrypt(SecretKey key, byte[] message) {
         String decryptedMessage = null;
         try {
-            cipher.init(Cipher.DECRYPT_MODE,key,ivParameterSpec);
+            cipher.init(Cipher.DECRYPT_MODE, key, ivParameterSpec);
             decryptedMessage = new String(cipher.doFinal(message));
         } catch (Exception e) {
             e.printStackTrace();
         }
         return decryptedMessage;
     }
-//    public static void main(String[] args) {
-//        SymmetricKey symmetricKey = new SymmetricKey();
-//        SecretKey secretKey = symmetricKey.generateNewKey();
-//        String message = "Tajna wiadomosc";
-//        var encryptedMessage = symmetricKey.encrypt(secretKey,message);
-//        System.out.println(new String(encryptedMessage));
-//        var decryptedMessage = symmetricKey.decrypt(secretKey,encryptedMessage);
-//        System.out.println(decryptedMessage);
-//    }
 }
 

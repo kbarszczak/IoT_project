@@ -1,4 +1,4 @@
-package com.agh.iot.mobile;
+package com.agh.iot.mobile.socket_connection;
 
 import java.io.*;
 import java.net.*;
@@ -15,12 +15,8 @@ public class MyServer {
         out = new PrintWriter(clientSocket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         String greeting = in.readLine();
-        if ("hello server".equals(greeting)) {
-            out.println("hello client");
-        }
-        else {
-            out.println("unrecognised greeting");
-        }
+
+        out.println("hello server".equals(greeting)? "hello client": "unrecognised greeting");
     }
 
     public void stop() throws IOException {
@@ -29,8 +25,4 @@ public class MyServer {
         clientSocket.close();
         serverSocket.close();
     }
-//    public static void main(String[] args) throws IOException {
-//        MyServer server = new MyServer();
-//        server.start(6666);
-//    }
 }

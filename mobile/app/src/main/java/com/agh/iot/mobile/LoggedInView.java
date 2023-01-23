@@ -1,10 +1,12 @@
 package com.agh.iot.mobile;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.agh.iot.mobile.wifi_management.WifiSelection;
 
 public class LoggedInView extends AppCompatActivity {
 
@@ -22,15 +24,16 @@ public class LoggedInView extends AppCompatActivity {
 
         buttonWifi.setOnClickListener(v -> startWifiActivity());
 
-        if(savedInstanceState == null){
-            getSupportFragmentManager().beginTransaction()
+        if (savedInstanceState == null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
                     .setReorderingAllowed(true)
-                    .replace(R.id.frame_layout,new DisplayData())
+                    .replace(R.id.frame_layout, new DisplayData())
                     .commit();
         }
     }
 
-    private void startWifiActivity(){
+    private void startWifiActivity() {
         startActivity(new Intent(LoggedInView.this, WifiSelection.class));
     }
 }

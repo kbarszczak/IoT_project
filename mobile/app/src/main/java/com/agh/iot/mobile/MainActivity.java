@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Passwords do not match", Toast.LENGTH_SHORT).show();
             return;
         }
+
         int responseCode = requestManager.insertNewUser(name,email,username,password);
         if(responseCode == 401){
             // Username is not available

@@ -1,4 +1,4 @@
-package com.agh.iot.mobile;
+package com.agh.iot.mobile.socket_connection;
 
 import java.io.*;
 import java.net.*;

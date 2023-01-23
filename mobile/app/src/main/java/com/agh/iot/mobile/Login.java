@@ -55,6 +55,7 @@ public class Login extends AppCompatActivity {
         String password = loginEditTextPassword.getText().toString();
 
         String token;
+
         if((token = requestManager.areCredentialsValid(username, password)) != null){
             Toast.makeText(getApplicationContext(), "Login Successful", Toast.LENGTH_SHORT).show();
             startLoggedInViewActivity(token);

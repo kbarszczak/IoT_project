@@ -1,4 +1,4 @@
-package com.agh.iot.mobile;
+package com.agh.iot.mobile.wifi_management;
 
 import android.Manifest;
 import android.content.Context;
@@ -18,16 +18,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.agh.iot.mobile.R;
+
 public class WifiSelection extends AppCompatActivity {
+
+    private static final int MY_PERMISSIONS_ACCESS_COARSE_LOCATION = 1;
 
     private ListView wifiList;
     private WifiManager wifiManager;
-    private final int MY_PERMISSIONS_ACCESS_COARSE_LOCATION = 1;
-    WifiReceiver receiverWifi;
-
+    private WifiReceiver receiverWifi;
     private Button buttonConnectWifi;
     private String wifiName;
     private EditText wifiPassword;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,40 +38,43 @@ public class WifiSelection extends AppCompatActivity {
 
         buttonConnectWifi = findViewById(R.id.btn_wifi_login);
         wifiPassword = findViewById(R.id.et_wifi_password);
-
         wifiList = findViewById(R.id.wifiList);
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+
         if (!wifiManager.isWifiEnabled()) {
             Toast.makeText(getApplicationContext(), "Turning WiFi ON...", Toast.LENGTH_LONG).show();
             wifiManager.setWifiEnabled(true);
         }
         Button buttonScan = findViewById(R.id.scanBtn);
-        buttonScan.setOnClickListener(v -> {
-            if (ActivityCompat.checkSelfPermission(WifiSelection.this, Manifest.permission.ACCESS_COARSE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(
-                        WifiSelection.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSIONS_ACCESS_COARSE_LOCATION);
-            } else {
-                wifiManager.startScan();
-            }
-        });
+        buttonScan.setOnClickListener(v -> scanning());
         wifiList.setOnItemClickListener((adapterView, view, i, l) -> wifiName = wifiList.getAdapter().getItem(i).toString());
-        buttonConnectWifi.setOnClickListener(view -> {
-            WifiConfiguration conf = buildWifiConfig();
-            int netId = wifiManager.addNetwork(conf);
-            wifiManager.disconnect();
-            wifiManager.enableNetwork(netId,true);
-            wifiManager.reconnect();
-        });
+        buttonConnectWifi.setOnClickListener(view -> connectToWiFi());
     }
 
-    protected WifiConfiguration buildWifiConfig(){
+    private void scanning() {
+        if (ActivityCompat.checkSelfPermission(WifiSelection.this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                    WifiSelection.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSIONS_ACCESS_COARSE_LOCATION);
+        } else {
+            wifiManager.startScan();
+        }
+    }
+
+    private void connectToWiFi() {
+        WifiConfiguration conf = buildWifiConfig();
+        int netId = wifiManager.addNetwork(conf);
+        wifiManager.disconnect();
+        wifiManager.enableNetwork(netId, true);
+        wifiManager.reconnect();
+    }
+
+    private WifiConfiguration buildWifiConfig() {
         String networkSSID = wifiName.split(" - ")[0];
         String networkPass = wifiPassword.getText().toString();
         WifiConfiguration conf = new WifiConfiguration();
         conf.SSID = String.format("\"%s\"", networkSSID);
         conf.preSharedKey = String.format("\"%s\"", networkPass);
-
         return conf;
     }
 
@@ -81,11 +87,12 @@ public class WifiSelection extends AppCompatActivity {
         registerReceiver(receiverWifi, intentFilter);
         getWifi();
     }
+
     private void getWifi() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             Toast.makeText(WifiSelection.this, "version> = marshmallow", Toast.LENGTH_SHORT).show();
             if (ContextCompat.checkSelfPermission(WifiSelection.this, Manifest.permission.ACCESS_COARSE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
+                    != PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(WifiSelection.this, "location turned off", Toast.LENGTH_SHORT).show();
                 ActivityCompat.requestPermissions(WifiSelection.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
                         MY_PERMISSIONS_ACCESS_COARSE_LOCATION);
@@ -98,24 +105,23 @@ public class WifiSelection extends AppCompatActivity {
             wifiManager.startScan();
         }
     }
+
     @Override
     protected void onPause() {
         super.onPause();
         unregisterReceiver(receiverWifi);
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case MY_PERMISSIONS_ACCESS_COARSE_LOCATION:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == MY_PERMISSIONS_ACCESS_COARSE_LOCATION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(WifiSelection.this, "permission granted", Toast.LENGTH_SHORT).show();
                 wifiManager.startScan();
             } else {
                 Toast.makeText(WifiSelection.this, "permission not granted", Toast.LENGTH_SHORT).show();
-                return;
             }
-            break;
         }
     }
 }
