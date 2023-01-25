@@ -1,3 +1,4 @@
+#include <cstdio>
 #define MQTTCLIENT_QOS1 0
 #define MQTTCLIENT_QOS2 0
 
@@ -14,19 +15,14 @@
 enum Action{
     GET_CREDENTIALS,
     CONNECT_AWS_MQTT,
-    SUBSCRIBE_TOPICS,
     PUBLISH_DATA,
     RESTART,
     EXIT
 };
 
-int main(int argc, char* argv[]){
-    // ----------------------------------- TMP to delete
-    char SSID[] = "bogdandorota162";
-    char PASSWORD[] = "internetBARSZCZAK";
-    nsapi_security WIFI_SECURITY = NSAPI_SECURITY_WPA_WPA2;
-    // ----------------------------------- TMP to delete
+const char *DEVICE_ID = "DEVICE001";
 
+int main(int argc, char* argv[]){
     // initialize mbed
     mbed_trace_init();
 
@@ -38,12 +34,10 @@ int main(int argc, char* argv[]){
     
     // endpoints
     char MQTT_TOPIC_PUB[] = "send_data";
-    char MQTT_TOPIC_SUB[] = "send_data";
 
     // fields
     Action action = GET_CREDENTIALS;
-    AccessPoint *accessPoint = nullptr;
-    Network *network = nullptr;
+    ISM43362Interface *interface = nullptr;
     AWSService *service = nullptr;
     DigitalIn userButton(USER_BUTTON);
 
@@ -53,68 +47,64 @@ int main(int argc, char* argv[]){
         }
 
         if(action == GET_CREDENTIALS){ // pair with the device and get credentials
-            // todo: pair with the device and get the credentials
+            if(interface == nullptr) interface = new ISM43362Interface();
+
+            AccessPoint access("IoT_PROJECT", "aghproject", NSAPI_SECURITY_WPA2, LOG);
+            if(!access.setUpAp(interface)){
+                action = RESTART;
+                continue;
+            }
+
+            if(!access.startServer(interface)){
+                action = RESTART;
+                continue;
+            }
+
             action = CONNECT_AWS_MQTT;
         }
         else if(action == CONNECT_AWS_MQTT){ // connect to the wifi
-            // connect to wifi
-            network = new Network(SSID, PASSWORD, WIFI_SECURITY, LOG);
-            if(!network->init()){ // no wifi interface was found
-                action = EXIT;
-                continue;
-            }
-            if(!network->connect(FORCE)){ // propably wrong credentials
-                action = RESTART;
-                continue;
-            }
-
             // connect to AWS MQTT
             service = new AWSService(BUFFER_SIZE, LOG);
-            if(!service->connect(network->getWiFiInterface())){ // server is neither available nor the certificates are ok
-                action = EXIT;
-                continue;
-            }
-
-            action = SUBSCRIBE_TOPICS;
-        }
-        else if(action == SUBSCRIBE_TOPICS){ // subscribing the topics
-            if(!service->subscribe(MQTT_TOPIC_SUB)){ // the connection could be interrupted
+            if(!service->connect(interface)){ // server is neither available nor the certificates are ok
                 action = RESTART;
                 continue;
             }
+
             action = PUBLISH_DATA;
         }
         else if(action == PUBLISH_DATA){ // publishing the data
             service->yield();
-            if(!service->publish(MQTT_TOPIC_PUB, "hello world!")){  // the connection could be interrupted
+
+            // creating data to send
+            char payload[50];
+            sprintf(payload, "{\n\tdeviceId: \"%s\",\n\tdata: \"%d\"\n}", DEVICE_ID, ((rand() % 20) + 20));
+
+            // sending data to the mqtt server
+            if(!service->publish(MQTT_TOPIC_PUB, payload)){
                 action = RESTART;
                 continue;
             }
             thread_sleep_for(DELAY_MS);
         }
         else if(action == RESTART || action == EXIT){ // either restarting or exiting the app
-            if(accessPoint != nullptr){
-                //accessPoint->disconnect();
-                delete accessPoint;
-                accessPoint = nullptr;
-            }
-
             if(service != nullptr){
                 service->disconnect();
                 delete service;
                 service = nullptr;
             }
 
-            if(network!=nullptr){
-                network->disconnect();
-                delete network;
-                network = nullptr;
+            if(interface != nullptr){
+                interface->disconnect();
+                delete interface;
+                interface = nullptr;
             }
 
             if(action == RESTART) action = GET_CREDENTIALS;
             else break;
         }
     }
+
+    printf("Exiting the application...\n");
 
     return EXIT_SUCCESS;
 }

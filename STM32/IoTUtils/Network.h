@@ -2,7 +2,7 @@
 #define IOT_UTIL_NETWORK
 
 #include "TLSSocket.h"
-#include "NTPClient.h"
+#include "mbed.h"
 #include <string>
 #include <utility>
 
