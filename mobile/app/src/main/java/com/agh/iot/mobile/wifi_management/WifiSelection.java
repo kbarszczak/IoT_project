@@ -21,6 +21,7 @@ import androidx.core.content.ContextCompat;
 
 import com.agh.iot.mobile.LoggedInView;
 import com.agh.iot.mobile.R;
+import com.agh.iot.mobile.WebSearch;
 import com.agh.iot.mobile.connection.ConnectorAWS;
 import com.agh.iot.mobile.connection.RequestManager;
 
@@ -34,6 +35,7 @@ public class WifiSelection extends AppCompatActivity {
     private WifiManager wifiManager;
     private WifiReceiver receiverWifi;
     private Button buttonConnectWifi;
+    private Button buttonScan;
     private String wifiName;
     private EditText wifiPassword;
     private EditText editTextDeviceID;
@@ -47,7 +49,7 @@ public class WifiSelection extends AppCompatActivity {
 
         setContentView(R.layout.activity_wifi_selection);
         token = getIntent().getStringExtra("token");
-        Button buttonScan = findViewById(R.id.scanBtn);
+        buttonScan = findViewById(R.id.scanBtn);
         editTextDeviceID = findViewById(R.id.et_device_id);
         buttonConnectWifi = findViewById(R.id.btn_wifi_login);
         wifiPassword = findViewById(R.id.et_wifi_password);
@@ -83,12 +85,15 @@ public class WifiSelection extends AppCompatActivity {
         wifiManager.enableNetwork(netId, true);
         wifiManager.reconnect();
 
+        Intent intent = new Intent(WifiSelection.this, WebSearch.class);
+        intent.putExtra("token", token);
+        startActivity(intent);
         attemptToPair(false);
     }
 
     private void attemptToPair(boolean isRetry) {
         String message = requestManager.pairDevice(token, editTextDeviceID.getText().toString(), editTextSecret.getText().toString());
-        if (message != null && message.equals("success")) {
+        if (message != null && message.equals("Success")) {
             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
             goToLoggedInActivity();
         }else if (!isRetry){
@@ -100,10 +105,10 @@ public class WifiSelection extends AppCompatActivity {
     }
 
     private void goToLoggedInActivity(){
-        Intent intent = new Intent(this, LoggedInView.class);
+        Intent intent = new Intent(this,  WebSearch.class);
         intent.putExtra("token", token);
-        startActivity(intent);
         this.finish();
+        startActivity(intent);
     }
 
 

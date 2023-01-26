@@ -5,8 +5,6 @@ A
 gradle.properties,2\a\2afbb999f001938c88fa43fc2ef52abf0f8213e4
 ;
 gradlew.bat,2\a\2a45a911a8f1836b0b6c5b758962572012d8f8c3
-<
-build.gradle,f\0\f07866736216be0ee2aba49e392191aeae700a35
 :
 
 .gitignore,a\5\a5cc2925ca8258af241be7e5b0381edf30266302
@@ -44,7 +42,5 @@ b
 2app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml,8\e\8e27ba16c655f421171956147d0fde89b7d25d17
 o
 ?app/src/main/java/com/agh/iot/mobile/encoding/SymmetricKey.java,9\9\99afe100af2948d168f1f847c0e5da9e57c05428
-t
-Dapp/src/main/java/com/agh/iot/mobile/socket_connection/MyServer.java,d\7\d7b1e679bea4a5583694997dbc66611e2969c9fd
-t
-Dapp/src/main/java/com/agh/iot/mobile/socket_connection/MyClient.java,f\4\f45cf019703920be6c1392ec0d61cfd2e60c3179
+e
+5app/src/main/java/com/agh/iot/mobile/DisplayData.java,3\5\35369b43b23762642d32978f29afc28175e23337
