@@ -20,20 +20,18 @@ enum Action{
     EXIT
 };
 
-const char *DEVICE_ID = "DEVICE001";
-
 int main(int argc, char* argv[]){
     // initialize mbed
     mbed_trace_init();
 
     // const fields
     const int BUFFER_SIZE = 256;
-    const int DELAY_MS = 500;
+    const int DELAY_MS = 1000;
     const bool LOG = true;
     const bool FORCE = true;
     
     // endpoints
-    char MQTT_TOPIC_PUB[] = "send_data";
+    char MQTT_TOPIC_PUB[] = "device/20/data"; // topic to publish
 
     // fields
     Action action = GET_CREDENTIALS;
@@ -77,14 +75,13 @@ int main(int argc, char* argv[]){
 
             // creating data to send
             char payload[50];
-            sprintf(payload, "{\n\tdeviceId: \"%s\",\n\tdata: \"%d\"\n}", DEVICE_ID, ((rand() % 20) + 20));
+            sprintf(payload, "{\n\t\"data\": \"%d\"\n}", ((rand() % 20) + 20));
 
             // sending data to the mqtt server
             if(!service->publish(MQTT_TOPIC_PUB, payload)){
                 action = RESTART;
                 continue;
             }
-            thread_sleep_for(DELAY_MS);
         }
         else if(action == RESTART || action == EXIT){ // either restarting or exiting the app
             if(service != nullptr){
@@ -102,6 +99,7 @@ int main(int argc, char* argv[]){
             if(action == RESTART) action = GET_CREDENTIALS;
             else break;
         }
+        thread_sleep_for(DELAY_MS);
     }
 
     printf("Exiting the application...\n");

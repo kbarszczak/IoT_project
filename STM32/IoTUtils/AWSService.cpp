@@ -47,24 +47,32 @@ bool AWSService::connect(NetworkInterface *network){
         if(log) printf("Could not open socket! Returned '%d'.\n", ret);
         return false;
     }
+    if(log) printf("Socket for AWS opened\n");
+    thread_sleep_for(300);
 
     ret = socket->set_root_ca_cert(SSL_CA_PEM);
     if (ret != NSAPI_ERROR_OK) {
         if(log) printf("Could not set ca cert! Returned '%d'.\n", ret);
         return false;
     }
+    if(log) printf("CA CERT set\n");
+    thread_sleep_for(300);
 
     ret = socket->set_client_cert_key(SSL_CLIENT_CERT_PEM, SSL_CLIENT_PRIVATE_KEY_PEM);
     if (ret != NSAPI_ERROR_OK) {
         if(log) printf("Could not set keys! Returned '%d'.\n", ret);
         return false;
     }
+    if(log) printf("Private key set\n");
+    thread_sleep_for(300);
 
     ret = socket->connect(MQTT_SERVER_HOST_NAME, MQTT_SERVER_PORT);
     if (ret != NSAPI_ERROR_OK) {
         if(log) printf("Could not connect! Returned '%d'.\n", ret);
         return false;
     }
+    if(log) printf("Socket connected\n");
+    thread_sleep_for(300);
 
     MQTTPacket_connectData data = MQTTPacket_connectData_initializer;
     data.MQTTVersion = 3;
