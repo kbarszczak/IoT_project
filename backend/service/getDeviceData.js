@@ -48,12 +48,16 @@ const getDeviceData = async (userToken, body) => {
         console.error('There is an error getting user: ', error)
     })
 
-    if (data.devices) {
+    if (data && data.devices) {
         if (!data.devices.includes(deviceId)) {
             return util.buildResponse(402, {
                 message: 'Dont be a scammer, its not your device...'
             })
         }
+    } else {
+        return util.buildResponse(402, {
+            message: "You haven't registered any device yet."
+        })
     }
 
     const scanParamsDevices = {
