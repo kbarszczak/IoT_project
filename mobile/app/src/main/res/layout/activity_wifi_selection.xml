@@ -7,15 +7,40 @@
     tools:context="com.agh.iot.mobile.wifi_management.WifiSelection">
 
     <EditText
+        android:id="@+id/et_device_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:ems="10"
+        android:hint="Device ID"
+        android:inputType="textPassword"
+        android:minHeight="48dp" />
+
+    <EditText
+        android:id="@+id/et_wifi_secret"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="80dp"
+        android:ems="10"
+        android:hint="Secret"
+        android:inputType="text"
+        android:minHeight="48dp" />
+
+    <EditText
         android:id="@+id/et_wifi_password"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="140dp"
         android:ems="10"
         android:hint="Password"
         android:inputType="textPassword"
         android:minHeight="48dp" />
+
+
+
     <ListView
         android:id = "@+id/wifiList"
         android:layout_width = "match_parent"

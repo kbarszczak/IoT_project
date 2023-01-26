@@ -2,6 +2,7 @@ package com.agh.iot.mobile.wifi_management;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.wifi.WifiConfiguration;
@@ -18,7 +19,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.agh.iot.mobile.LoggedInView;
 import com.agh.iot.mobile.R;
+import com.agh.iot.mobile.connection.ConnectorAWS;
+import com.agh.iot.mobile.connection.RequestManager;
+
+import java.util.Objects;
 
 public class WifiSelection extends AppCompatActivity {
 
@@ -30,22 +36,31 @@ public class WifiSelection extends AppCompatActivity {
     private Button buttonConnectWifi;
     private String wifiName;
     private EditText wifiPassword;
+    private EditText editTextDeviceID;
+    private EditText editTextSecret;
+    private RequestManager requestManager;
+    private String token;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_wifi_selection);
 
+        setContentView(R.layout.activity_wifi_selection);
+        token = getIntent().getStringExtra("token");
+        Button buttonScan = findViewById(R.id.scanBtn);
+        editTextDeviceID = findViewById(R.id.et_device_id);
         buttonConnectWifi = findViewById(R.id.btn_wifi_login);
         wifiPassword = findViewById(R.id.et_wifi_password);
         wifiList = findViewById(R.id.wifiList);
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        editTextSecret = findViewById(R.id.et_wifi_secret);
+
+        requestManager = new ConnectorAWS();
 
         if (!wifiManager.isWifiEnabled()) {
             Toast.makeText(getApplicationContext(), "Turning WiFi ON...", Toast.LENGTH_LONG).show();
             wifiManager.setWifiEnabled(true);
         }
-        Button buttonScan = findViewById(R.id.scanBtn);
         buttonScan.setOnClickListener(v -> scanning());
         wifiList.setOnItemClickListener((adapterView, view, i, l) -> wifiName = wifiList.getAdapter().getItem(i).toString());
         buttonConnectWifi.setOnClickListener(view -> connectToWiFi());
@@ -67,7 +82,30 @@ public class WifiSelection extends AppCompatActivity {
         wifiManager.disconnect();
         wifiManager.enableNetwork(netId, true);
         wifiManager.reconnect();
+
+        attemptToPair(false);
     }
+
+    private void attemptToPair(boolean isRetry) {
+        String message = requestManager.pairDevice(token, editTextDeviceID.getText().toString(), editTextSecret.getText().toString());
+        if (message != null && message.equals("success")) {
+            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+            goToLoggedInActivity();
+        }else if (!isRetry){
+            attemptToPair(true);
+        } else {
+            Toast.makeText(getApplicationContext(), "Failed to pair device", Toast.LENGTH_LONG).show();
+        }
+
+    }
+
+    private void goToLoggedInActivity(){
+        Intent intent = new Intent(this, LoggedInView.class);
+        intent.putExtra("token", token);
+        startActivity(intent);
+        this.finish();
+    }
+
 
     private WifiConfiguration buildWifiConfig() {
         String networkSSID = wifiName.split(" - ")[0];
@@ -91,6 +129,8 @@ public class WifiSelection extends AppCompatActivity {
     private void getWifi() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             Toast.makeText(WifiSelection.this, "version> = marshmallow", Toast.LENGTH_SHORT).show();
+
+            // check if we have permission to access coarse location
             if (ContextCompat.checkSelfPermission(WifiSelection.this, Manifest.permission.ACCESS_COARSE_LOCATION)
                     != PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(WifiSelection.this, "location turned off", Toast.LENGTH_SHORT).show();
